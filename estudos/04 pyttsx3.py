@@ -2,7 +2,7 @@
 import pyttsx3
 
 engine = pyttsx3.init()
-engine.setProperty("voice", "brazil")
+engine.setProperty("voice", "portuguese")
 
 arquivo = open("frase.txt", "r", encoding = "utf-8")
 conteudo = arquivo.read()

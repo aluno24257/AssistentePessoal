@@ -12,53 +12,57 @@ from bs4 import BeautifulSoup
 from requests import get
 from translate import Translator
 
-def cria_audio(audio, mensagem, lang = 'pt-br'):
-	tts = gTTS(mensagem, lang = lang)
-	tts.save(audio)
-	playsound(audio)
-	os.remove(audio)	
+def cria_audio(audio, mensagem, lang='pt-pt'):
+    tts = gTTS(mensagem, lang=lang)
+    tts.save(audio)
+    playsound(audio)
+    os.remove(audio)	
 
 def monitora_audio():
-	recon = sr.Recognizer()
-	with sr.Microphone() as source:
-		while True:
-			print('Diga algo, estou te ouvindo')
-			audio = recon.listen(source)
-			try: 
-				mensagem = recon.recognize_google(audio, language = 'pt-br')
-				mensagem = mensagem.lower()
-				print('Você disse', mensagem)
-				executa_comandos(mensagem)
-				break
-			except sr.UnknownValueError:
-				pass
-			except sr.RequestError:
-				pass
-		return mensagem
+    recon = sr.Recognizer()
+    with sr.Microphone() as source:
+        while True:
+            print('Diga algo, estou a ouvir')
+            audio = recon.listen(source)
+            try: 
+                mensagem = recon.recognize_google(audio, language='pt-pt')
+                mensagem = mensagem.lower()
+                print('Você disse:', mensagem)
+                executa_comandos(mensagem)
+                break
+            except sr.UnknownValueError:
+                pass
+            except sr.RequestError:
+                pass
+    return mensagem
 
 def noticias():
-	site = get('https://news.google.com/news/rss?ned=pt_br&gl=BR&hl=pt')
-	noticias = BeautifulSoup(site.text, 'html.parser')
-	for item in noticias.findAll('item')[:5]:
-		mensagem = item.title.text
+    site = get('https://news.google.com/news/rss?ned=pt-PT_pt&gl=PT&hl=pt-PT')
+    noticias = BeautifulSoup(site.text, 'html.parser')
+    for item in noticias.findAll('item')[:5]:
+        mensagem = item.title.text
+        cria_audio('noticias.mp3', mensagem)
 
 def cotacao(moeda):
-	requisicao = get(f'https://economia.awesomeapi.com.br/all/{moeda}-BRL')
-	cotacao = requisicao.json()
-	nome = cotacao[moeda]['name']
-	data = cotacao[moeda]['create_date']
-	valor = cotacao[moeda]['bid']
-	cria_audio("cotacao.mp3", f"Cotação do {nome} em {data} é {valor}")
+    requisicao = get(f'https://economia.awesomeapi.com.br/all/{moeda}-BRL')
+    cotacao = requisicao.json()
+    nome = cotacao[moeda]['name']
+    data = cotacao[moeda]['create_date']
+    valor = cotacao[moeda]['bid']
+    cria_audio("cotacao.mp3", f"A cotação do {nome} em {data} é {valor}")
 
 def filmes():
-	token = "<suachaveapi>"
-	url = 'https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key={token}'
-	resposta = urllib.request.urlopen(url)
-	dados = resposta.read()
-	jsondata = json.loads(dados)
-	filmes = jsondata = json.loads(dados)['results']
-	for filme in filmes[:5]:
-		cria_audio("filmes.mp3", filme['title'], lang = 'en')
+    token = "<suachaveapi>"
+    url = 'https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key={token}'
+    resposta = urllib.request.urlopen(url)
+    dados = resposta.read()
+    jsondata = json.loads(dados)
+    filmes = jsondata = json.loads(dados)['results']
+    for filme in filmes[:5]:
+        titulo = filme['title']
+        titulo_original = filme['original_title']
+        mensagem = f"Título em português: {titulo}. Título original: {titulo_original}"
+        cria_audio('filmes.mp3', mensagem)
 
 def clima(cidade):
 	token = "<suachaveapi>"

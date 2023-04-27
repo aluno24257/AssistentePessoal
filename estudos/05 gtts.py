@@ -3,7 +3,7 @@ from gtts import gTTS
 from playsound import playsound
 
 def cria_audio(mensagem):
-	tts = gTTS(mensagem, lang = 'pt-br')
+	tts = gTTS(mensagem, lang = 'pt-pt')
 	tts.save('hello.mp3')
 	playsound('hello.mp3')
 
